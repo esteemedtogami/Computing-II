@@ -1,0 +1,277 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define SIZE 100
+
+enum status { FAILURE, SUCCESS };
+enum boolean { FALSE, TRUE};
+
+typedef enum status Status;
+typedef enum boolean Boolean;
+
+struct node;
+typedef struct node Node;
+
+typedef void* QUEUE;
+
+struct node
+{
+    int data;
+    Node* next;
+    Node* prev;
+};
+
+
+struct queue
+{
+    int front;
+    int back;
+    int size;
+    
+    Node* head;
+    Node* tail;
+};
+
+typedef struct queue Queue;
+
+
+QUEUE queue_init_default(void);
+
+
+Status queue_enqueue(QUEUE hQueue, int item);
+
+
+Status queue_service(QUEUE hQueue);
+
+
+Boolean queue_empty(QUEUE hQueue);
+
+
+int queue_front(QUEUE hQueue, Status* pStatus_code);
+
+int queue_get_size(QUEUE hQueue);
+
+
+void queue_destroy(QUEUE* phQueue);
+
+void clear_keyboard_buffer(void);
+
+int main(int argc, char* argv[])
+{
+    Status status;
+    QUEUE left_queue, right_queue;
+    
+    int trips, trials, j, test_cases, car, load, s;
+    int array_results[SIZE];
+    
+    int check;
+    
+    scanf("%d", &test_cases);
+    clear_keyboard_buffer();
+    
+    for (int i = 0; i < test_cases; i++)
+    {
+        char bank;
+        int service_left = 0, service_right = 0, capacity;
+        left_queue = queue_init_default();
+        right_queue = queue_init_default();
+        scanf("%d %d", &capacity, &trials);
+        clear_keyboard_buffer();
+        
+        load = 0;
+        check = 1;
+        
+        for (j = 0; j < trials; j++)
+        {
+            scanf("%d %c", &car, &bank);
+            clear_keyboard_buffer();
+            
+            if (bank == 'l')
+            {
+                service_left ++;
+                queue_enqueue(left_queue, car);
+            }
+            else
+            {
+                service_right ++;
+                queue_enqueue(right_queue, car);
+            }
+        }
+        
+        trips = 0;
+        capacity *= 100;
+        
+        while (!queue_empty(left_queue) || !queue_empty(right_queue))
+        {
+            
+            load = 0;
+            if (check)
+            {
+                while (!queue_empty(left_queue) && load + queue_front(left_queue, &status) <= capacity)
+                {
+                    load += queue_front(left_queue, &status);
+                    queue_service(left_queue);
+                }
+            }
+            
+            else
+            {
+                while (!queue_empty(right_queue) && load + queue_front(right_queue, &status) <= capacity)
+                {
+                    load += queue_front(right_queue, &status);
+                    queue_service(right_queue);
+                }
+            }
+            
+            ++trips;
+            check = 1 - check;
+        }
+        
+        array_results[i] = trips;
+    }
+    
+    for (s = 0; s < test_cases; s++)
+    {
+        printf("%d\n", array_results[s]);
+    }
+    
+    return 0;
+}
+
+void clear_keyboard_buffer(void)
+{
+    char c;
+    
+    do
+    {
+        scanf("%c", &c);
+    } while (c != '\n');
+    
+}
+
+QUEUE queue_init_default(void)
+{
+    Queue* pQueue = NULL;
+    
+    pQueue = (Queue*) malloc(sizeof(Queue));
+    if (pQueue != NULL)
+    {
+        pQueue->front = -1;
+        pQueue->back = 0;
+        pQueue->size = 0;
+        pQueue->head = NULL;
+        pQueue->tail = NULL;
+    }
+    
+    return pQueue;
+}
+
+
+Status queue_enqueue(QUEUE hQueue, int item)
+{
+    Queue* pQueue = (Queue*) hQueue;
+    Node* temp;
+    
+    
+    
+    if (pQueue->front == -1)
+    {
+        pQueue->front = 0;
+    }
+    
+    temp = (Node*)malloc(sizeof(Node));
+    if (temp == NULL)
+    {
+        return FAILURE;
+    }
+    temp->data = item;
+    temp->prev = pQueue->tail;
+    temp->next = pQueue->head;
+    
+    pQueue->tail = pQueue->head;
+    pQueue->head = temp;
+    
+    pQueue->size++;
+    
+    return SUCCESS;
+}
+
+Status queue_service(QUEUE hQueue)
+{
+    Queue* pQueue = (Queue*) hQueue;
+    Node* temp;
+    
+    if(pQueue->head == NULL)
+    {
+        return FAILURE;
+    }
+    
+    
+    temp = pQueue->head;
+    
+    pQueue->head = pQueue->head->next;
+    free(temp);
+    pQueue->size --;
+    return SUCCESS;
+}
+
+Boolean queue_empty(QUEUE hQueue)
+{
+    Queue* pQueue = (Queue*) hQueue;
+    
+    pQueue->size = 0;
+    
+    return (Boolean)(pQueue->head == NULL);
+}
+
+int queue_front(QUEUE hQueue, Status* pStatus_code)
+{
+    Queue* pQueue = (Queue*) hQueue;
+    
+    if (pQueue->head == NULL)
+    {
+        if (pStatus_code != NULL)
+        {
+            *pStatus_code = FAILURE;
+        }
+        
+        return -9001;
+    }
+    
+    if (pStatus_code != NULL)
+    {
+        *pStatus_code = SUCCESS;
+    }
+    
+    return pQueue->head->data;
+}
+
+int queue_get_size(QUEUE hQueue)
+{
+    Queue* pQueue = (Queue*) hQueue;
+    
+    return pQueue->size;
+    
+}
+
+void queue_destroy(QUEUE* phQueue)
+{
+    Queue* pQueue = (Queue*) *phQueue;
+    Node* temp;
+    
+    temp = pQueue->head;
+    while (temp != NULL)
+    {
+        pQueue->head = pQueue->head->next;
+        free(temp);
+        temp = pQueue->head;
+    }
+    
+    free(pQueue);
+    *phQueue = NULL;
+    
+    return;
+}
+
+
+
