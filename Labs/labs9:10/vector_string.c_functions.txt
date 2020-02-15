@@ -1,0 +1,40 @@
+Status vector_string_resize(VECTOR hVectorString)
+{
+  if (hVectorString == NULL)
+    {
+      return FAILURE;
+    }
+
+  if (hVectorString->capacity == 0)
+    {
+      hVectorString->capacity ++;
+    }
+
+  (hVectorString->capacity) *= 2;
+  STRING* temp = (STRING*)vector_string_make_temp(hVectorString, hVectorString->size);
+  if (temp)
+    {
+      free(hVectorString->data);
+      hVectorString->data = temp;
+      return SUCCESS;
+    }
+  return FAILURE;
+
+}
+
+
+
+void* vector_string_make_temp(VECTOR hVectorString, int old_size)
+{
+  STRING* temp = (STRING*)malloc(sizeof(STRING)*hVectorString->capacity);
+
+  if (temp)
+    {
+      int j;
+      for (j = 0; j < hVectorString->size; j++)
+        {
+          temp[j] = hVectorString->data[j];
+        }
+    }
+  return (void*)temp;
+}

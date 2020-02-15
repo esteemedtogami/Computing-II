@@ -1,0 +1,47 @@
+VECTOR* load_array_vector_string_of_size(FILE* words, int size)
+{
+  if (words == NULL)
+    {
+      printf("Unable to open file.\n");
+      return NULL;
+    }
+
+  VECTOR* vector_array = (VECTOR*)malloc(sizeof(VECTOR) * 31);
+  int i;
+  int index = 0;
+  if (vector_array)
+    {
+      STRING temp = NULL;
+      temp = string_init_default();
+
+      for (i = 0; i < 31; i++)
+        {
+          vector_array[i] = vector_string_init_default();
+        }
+
+      while (string_extraction(temp, words))
+        {
+          vector_string_push_back(vector_array[index++], temp);
+          if (index == 31)
+            {
+              break;
+            }
+          vector_string_resize(temp);
+        }
+      string_destroy(&temp);
+      return vector_array;
+
+    }
+
+  return NULL;
+}
+
+
+
+
+
+int rando(int min, int max)
+{
+  double scaled = (double)rand() / RAND_MAX;
+  return (max - min + 1) * scaled + min;
+}

@@ -1,0 +1,66 @@
+void* string_make_temp(STRING hString, int old_size)
+{
+  if (hString == NULL)
+    {
+      return NULL;
+    }
+
+  char* temp = (char*)malloc(sizeof(char)*(hString->capacity));
+
+  int j;
+  if (temp)
+    {
+      for (j = 0; j < old_size; j++)
+        {
+          temp[j] = hString->char_arr[j];
+        }
+    }
+  else
+    {
+      return NULL;
+    }
+
+  return temp;
+}
+
+
+Status string_resize(STRING hString)
+{
+  if (hString == NULL)
+    {
+      return FAILURE;
+    }
+
+  hString->capacity *= 2;
+  char* temp = string_make_temp(hString, hString->char_arr);
+  if (temp)
+    {
+      free(hString->char_arr);
+      hString->char_arr = temp;
+
+      return SUCCESS;
+    }
+  else
+    {
+      return FAILURE;
+    }
+}
+
+
+
+Status string_insert_at_index(STRING hString, int index, char item)
+{
+  if (hString == NULL)
+    {
+      return FAILURE;
+    }
+
+  if (index > hString->size)
+    {
+      return FAILURE;
+    }
+  hString->char_arr[index] = item;
+  return SUCCESS;
+
+
+}
