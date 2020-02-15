@@ -1,0 +1,3 @@
+The online judge said: Runtime error
+
+I’m not sure how else I can change this program to work with the online judge
